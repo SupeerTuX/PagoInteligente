@@ -1,0 +1,68 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,60,40)
+  { SerialPort1 #SerialPort
+    #MoveScaled(57,57)
+  }
+  { img4G PictureBox
+    MoveScaled(50,1,8,8)
+    Picture = Picture["img/icono4G.png"]
+    Stretch = True
+  }
+  { imgWifi PictureBox
+    MoveScaled(39,1,8,8)
+    Picture = Picture["img/wifi.png"]
+    Stretch = True
+  }
+  { imgOK PictureBox
+    MoveScaled(56,6,3.125,3.125)
+    Picture = Picture["img/ok.png"]
+    Stretch = True
+  }
+  { imgOK2 PictureBox
+    MoveScaled(46,6,3.125,3.125)
+    Picture = Picture["img/ok.png"]
+    Stretch = True
+  }
+  { lbTitulo TextLabel
+    MoveScaled(7,3,24,4)
+    Font = Font["+3"]
+    Text = ("Cobro Inteligente")
+    Alignment = Align.Center
+  }
+  { Separator1 Separator
+    MoveScaled(2,34,56,2)
+  }
+  { lbSystem Label
+    MoveScaled(1,35,58,4)
+    Background = Color.Gray
+    Foreground = Color.Green
+    Text = ("System OK")
+  }
+  { PictureBox1 PictureBox
+    MoveScaled(2,9,6,6)
+    Picture = Picture["img/calendario.png"]
+    Stretch = True
+  }
+  { lbDate TextLabel
+    MoveScaled(9,11,29,3)
+    Font = Font["+2"]
+    Text = ("Fecha y Hora")
+  }
+  { dateTimer #Timer
+    #MoveScaled(53,28)
+  }
+  { lbBody1 TextLabel
+    MoveScaled(3,17,44,4)
+    Font = Font["+2"]
+    Background = Color.LightGray
+    Alignment = Align.Center
+  }
+  { lbBody2 TextLabel
+    MoveScaled(3,21,44,4)
+    Font = Font["+2"]
+    Background = Color.LightGray
+    Alignment = Align.Center
+  }
+}
