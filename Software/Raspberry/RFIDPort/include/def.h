@@ -14,6 +14,11 @@
 
 //  \n New line ascii 10
 //  \r Retorno  ascii 13
+
+//Definimos un error TimeOut
+#define ERROR_TIMEOUT 2
+#define ERROR_RW 3
+
 /**
  * @brief verifffffica si hay mensajes nuevos
  * 
@@ -62,7 +67,7 @@ String sendCommand(char *cmd);
  * @brief Espera recibir un comando en un determinado timeout
  * 
  */
-void waitForCMD(void);
+byte waitForCMD(void);
 
 /**
  * @brief llena con '\0' todo el array

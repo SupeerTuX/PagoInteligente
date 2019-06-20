@@ -10,6 +10,9 @@
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Creamos una instancia MFRC522
 MFRC522::MIFARE_Key key;          //Llave usada como KEY_A y KEY_B
 
+//Declaracion de variables globales
+byte reenvios = 0;
+
 void setup()
 {
   // put your setup code here, to run once:
@@ -57,16 +60,65 @@ void loop()
     return;
   }
 
-  //Enviamos comando de nueva tarjeta encontrada con
+  //Enviamos comando de nueva tarjeta encontrada
+  //Evaluamos la respuesta
 
-  if (!sendNewCard())
+  switch (sendNewCard())
   {
-    //Avisar del error timeout
+  case false:
+    //Respuesta incorrecta
+    Serial.println(F("AT+Error"));
     return;
-  }
-  waitForCMD();
+    break;
 
-  //Cerramos operaciones de RFID
+  case true:
+    //Respuesta OK
+    goto nuevoSaldo;
+    break;
+
+  case ERROR_TIMEOUT:
+    //Error TimeOut
+    Serial.println(F("AT+TimeOut"));
+    //Cerramos operaciones RFID
+    mfrc522.PICC_HaltA();
+    mfrc522.PCD_StopCrypto1();
+    return;
+    break;
+
+  default:
+    //Error de
+    break;
+  }
+
+//Esperamos el nuevo saldo a ser escrito
+//en la tarjeta
+nuevoSaldo:
+
+  switch (waitForCMD())
+  {
+  case true:
+    //Proceso correcto
+    //Enviamso la respuesta
+    Serial.println(F("OK"));
+    //Salimos del proceso
+    break;
+
+  case false:
+    //Error de formato pedimos
+    Serial.println(F("AT+ReSend"));
+    break;
+
+  case ERROR_RW:
+    //Error de escritura
+    Serial.println(F("AT+ErrorRW"));
+    break;
+
+  default:
+    //Error desconocido
+    break;
+  }
+
+  //Cerramos operaciones RFID
   mfrc522.PICC_HaltA();
   mfrc522.PCD_StopCrypto1();
 }
@@ -236,19 +288,25 @@ byte sendNewCard(void)
   strcat(cmd, saldo);
   strcat(cmd, "]");
 
+  //Enviando comando
   data = sendCommand(cmd);
+  //Buscabndo respuesta
+
   if (data.equals("OK"))
   {
+    //Respuesta OK Encontrada
     return true;
+  }
+  else if (data.equals("Timeout"))
+  {
+    //Error timepo de espera consumido
+    return ERROR_TIMEOUT;
   }
   else
   {
+    //Error
     return false;
   }
-
-  //Respuesta recibida
-  //Serial.print("Respuesta: ");
-  //Serial.println(data);
 }
 
 /**
@@ -290,7 +348,7 @@ String sendCommand(char *cmd)
  * @brief Espera recibir un comando en un determinado timeout
  * 
  */
-void waitForCMD(void)
+byte waitForCMD(void)
 {
   while (1)
   {
@@ -311,9 +369,7 @@ void waitForCMD(void)
         if (inicio == -1 || fin == -1)
         {
           //Error de formato
-          //Enviamos el comando de reenvio
-          Serial.println(F("AT+ReSend"));
-          return;
+          return false;
         }
 
         inicio++;
@@ -322,23 +378,19 @@ void waitForCMD(void)
         clearCharArray(saldo);
         String buffer = data.substring(inicio, fin);
         buffer.toCharArray(saldo, buffer.length());
-        //Serial.print(F("CMD: "));
-        //Serial.println(saldo);
 
         //Ecribir Saldo actual en la tarjeta
         if (writeBlock(saldo, BLOCK_SALDO, TBLOCK_SALDO))
         {
           //Escritura realizada correctamente
-          Serial.println(F("OK"));
+          return true;
         }
         //Error de escritura
         else
         {
-          //Enviamos el comando de error
-          Serial.println(F("AT+ErrorEscritura"));
+          //Retornamos el error
+          return ERROR_RW;
         }
-
-        return;
       }
     }
   }
