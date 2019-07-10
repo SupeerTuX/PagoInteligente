@@ -12,6 +12,8 @@ MFRC522::MIFARE_Key key;          //Llave usada como KEY_A y KEY_B
 
 //Declaracion de variables globales
 byte reenvios = 0;
+//Determian si esta enproceso una operacion de saldo
+bool inProces = false;
 
 void setup()
 {
@@ -56,6 +58,30 @@ void loop()
   if (!mfrc522.PICC_ReadCardSerial())
   {
     return;
+  }
+
+  /**
+   * Codigo despues de encontrar una tarjeta
+   */
+
+  //Enviamos mensaje de tarjeta nueva encontrada
+  switch (sendNewCard())
+  {
+  case true:
+    // Envio OK
+    break;
+
+  case false:
+    //Error RW
+    break;
+
+  case ERROR_TIMEOUT:
+    // Tiempo de respuesta consumido
+    break;
+
+  default:
+    // Error desoconocido
+    break;
   }
 
   //Cerramos operaciones RFID

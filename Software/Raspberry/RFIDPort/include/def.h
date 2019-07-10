@@ -20,7 +20,7 @@
 #define ERROR_RW 3
 
 /**
- * @brief verifffffica si hay mensajes nuevos
+ * @brief verifica si hay mensajes nuevos
  * 
  */
 void readMsg(void);
@@ -50,13 +50,15 @@ byte leerID(char *id);
 byte leerSaldo(char *saldo);
 
 /**
- * @brief 
+ * @brief  Envia el comando AT Avisando "Tarjeta nueva encontrada"
+ *         dentro del mensaje envia el saldo y el id "AT+NewCard[id][saldo]"
  * 
+ * @return false = Error RW | true = Envio OK | ERROR_TIMEOUT = Sin respuesta
  */
 byte sendNewCard(void);
 
 /**
- * @brief 
+ * @brief Envia un el comando pasado como argumento
  * 
  * @param cmd 
  * @return String 
