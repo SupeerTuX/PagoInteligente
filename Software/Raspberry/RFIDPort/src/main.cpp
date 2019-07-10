@@ -45,10 +45,8 @@ void setup()
 
 void loop()
 {
+  //Loop Principal
 
-  //Revisar  por mensajes
-  readMsg();
-  delay(100);
   //Buscando nuevas tarjetas
   if (!mfrc522.PICC_IsNewCardPresent())
   {
@@ -58,64 +56,6 @@ void loop()
   if (!mfrc522.PICC_ReadCardSerial())
   {
     return;
-  }
-
-  //Enviamos comando de nueva tarjeta encontrada
-  //Evaluamos la respuesta
-
-  switch (sendNewCard())
-  {
-  case false:
-    //Respuesta incorrecta
-    Serial.println(F("AT+Error"));
-    return;
-    break;
-
-  case true:
-    //Respuesta OK
-    goto nuevoSaldo;
-    break;
-
-  case ERROR_TIMEOUT:
-    //Error TimeOut
-    Serial.println(F("AT+TimeOut"));
-    //Cerramos operaciones RFID
-    mfrc522.PICC_HaltA();
-    mfrc522.PCD_StopCrypto1();
-    return;
-    break;
-
-  default:
-    //Error de
-    break;
-  }
-
-//Esperamos el nuevo saldo a ser escrito
-//en la tarjeta
-nuevoSaldo:
-
-  switch (waitForCMD())
-  {
-  case true:
-    //Proceso correcto
-    //Enviamso la respuesta
-    Serial.println(F("OK"));
-    //Salimos del proceso
-    break;
-
-  case false:
-    //Error de formato pedimos
-    Serial.println(F("AT+ReSend"));
-    break;
-
-  case ERROR_RW:
-    //Error de escritura
-    Serial.println(F("AT+ErrorRW"));
-    break;
-
-  default:
-    //Error desconocido
-    break;
   }
 
   //Cerramos operaciones RFID
