@@ -20,10 +20,11 @@
 #define ERROR_RW 3
 
 /**
- * @brief verifica si hay mensajes nuevos
+ * @brief Espera la llegada de mensajes
  * 
+ * @return Devuelve el string del mensaje
  */
-void readMsg(void);
+String readMsg(void);
 
 /**
  * @brief Funcion de ayuda para formater ala salida en hexadecimal
@@ -66,13 +67,19 @@ byte sendNewCard(void);
 String sendCommand(char *cmd);
 
 /**
- * @brief Espera recibir un comando en un determinado timeout
- * 
- */
-byte waitForCMD(void);
-
-/**
  * @brief llena con '\0' todo el array
  * 
  */
 void clearCharArray(char *buffer);
+
+/**
+ * @brief Lee las coordenadas del sensor GPS
+ * 
+ * @param lat latitud
+ * @param lon longitud
+ */
+void readGPS(String lat, String lon);
+
+void cardProcces();
+
+byte searchCMD(String cmd);
