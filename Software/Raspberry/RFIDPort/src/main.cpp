@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <SPI.h>
-#include <MFRC522.h>
+
 
 #include "def.h"
 
@@ -78,6 +78,11 @@ void cardProcces()
       Serial.print("CMD :[");
       Serial.print(msg);
       Serial.println("]");
+
+      //Buscando el comando recibido
+      Serial.println("Buscando Comando");
+      searchCMD(msg);
+
     }
     delay(250);
   }
@@ -95,4 +100,23 @@ String readMsg()
     Serial.flush();
   }
   return data;
+}
+
+//Buscamos el comando, que se ha recibido en 
+byte searchCMD(String msg)
+{
+  if(msg.equals("AT"))
+  {
+    Serial.println("Send OK");
+  }
+  else if (msg.equals("AT+ReadID"))
+  {
+    Serial.println("Send MVAXXX10");
+  }
+  else if (msg.equals("AT+ReadSaldo"))
+  {
+    Serial.println("Send Saldo:535");    
+  }
+  
+
 }
