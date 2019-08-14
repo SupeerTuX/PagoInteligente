@@ -108,7 +108,40 @@ byte searchCMD(String msg)
    *********************/
   else if (msg.indexOf("AT+NewSaldo") >= 0)
   {
-    /* code */
+    //Decodificamos el saldo que ha enviado
+    byte inicio = 0;
+    byte fin = 0;
+
+    inicio = msg.indexOf('[');
+    fin = msg.indexOf(']');
+
+    //Buscamos error
+    if (inicio == -1 || fin == -1)
+    {
+      //Error de formato
+      return false;
+    }
+
+    inicio++;
+    fin++;
+    clearCharArray(buffer);
+    String data = msg.substring(inicio, fin);
+    data.toCharArray(buffer, data.length());
+
+    //Ecribir Saldo actual en la tarjeta
+    if (writeBlock(buffer, BLOCK_SALDO, TBLOCK_SALDO))
+    {
+      //Escritura realizada correctamente
+      Serial.println("OK");
+      return true;
+    }
+    //Error de escritura
+    else
+    {
+      //Retornamos el error
+      Serial.println("ERROR");
+      return ERROR_RW;
+    }
   }
 
   //Default

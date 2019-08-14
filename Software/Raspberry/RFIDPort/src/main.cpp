@@ -24,6 +24,7 @@ void setup()
 
   // Init MFCR
   mfrc522.PCD_Init();
+
   // LLave A y B de acceso a la tarjera RFID
   key.keyByte[0] = 0x84;
   key.keyByte[1] = 0x8F;
@@ -46,7 +47,7 @@ void loop()
   {
     return;
   }
-  
+
   //Trajeta encontrada, leemos la tarjeta
   //comprobamos saldo e ID
   //Enviamos mensaje de tarjeta nueva encontrada
@@ -76,14 +77,10 @@ void loop()
     break;
   }
 
-
-
   //Cerramos operaciones RFID
   mfrc522.PICC_HaltA();
   mfrc522.PCD_StopCrypto1();
 }
-
-
 
 //Funcion para leer un bloque de la tarjeta RFID
 byte readBlock(char *dataBlock, byte block, byte trailerBlock)
@@ -115,7 +112,6 @@ byte readBlock(char *dataBlock, byte block, byte trailerBlock)
   }
   return true;
 }
-
 
 //Escribe un bloque en la tarjeta RFID
 byte writeBlock(char *dataBlock, byte block, byte trailerBlock)

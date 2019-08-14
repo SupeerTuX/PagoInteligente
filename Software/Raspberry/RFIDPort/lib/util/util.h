@@ -14,7 +14,6 @@
 #include <Arduino.h>
 #include "cmdList.h"
 
-
 //Definiciones de MFRC522
 #define SECTOR_ID 0 //Sector donde se almacena el ID
 #define BLOCK_ID 1  //Bloque del sector donde se almacena el ID
@@ -34,15 +33,12 @@
 #define ERROR_TIMEOUT 2
 #define ERROR_RW 3
 
-
-
 /**
  * @brief Limpia el char array
  * 
  * @param char Array
  */
 void clearCharArray(char *buffer);
-
 
 /**
  * @brief Espera la llegada de mensajes
@@ -67,10 +63,6 @@ byte searchCMD(String cmd);
  */
 void cardProcces();
 
-
-
-
-
 /**
  * @brief Envia un el comando pasado como argumento
  * 
@@ -78,8 +70,6 @@ void cardProcces();
  * @return String 
  */
 String sendCommand(char *cmd);
-
-
 
 /**
  * @brief  Envia el comando AT Avisando "Tarjeta nueva encontrada"
@@ -89,7 +79,6 @@ String sendCommand(char *cmd);
  */
 byte sendNewCard(void);
 
-
 /**
  * @brief Funcion de ayuda para formater ala salida en hexadecimal
  * 
@@ -97,4 +86,3 @@ byte sendNewCard(void);
  * @param bufferSize 
  */
 void dump_byte_array(byte *buffer, byte bufferSize);
-

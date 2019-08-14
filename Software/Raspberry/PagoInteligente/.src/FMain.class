@@ -1,84 +1,44 @@
 ' Gambas class file
 
-Private RFID_Port As SerialPort
+Public CardPort As RFIDPort
+Public cardProcess As CardProcess
+
+'Declaracion de eventos
+Event RFIDDataIn(dataIn As String) 'Evento cuando llega un comando del RFID_Port
 
 Public Sub Form_Open()
 
-lbSystem.Text = "Buscando puerto"
-'Timer para la hora y fecha, intervalo cada segundo
-dateTimer.Delay = 1000
-'Timer iniciado
-dateTimer.Start
-RFID_Port = New SerialPort As "RFID_Port"
-
-searchPort()
-
-'Mensaje de inicio
-lbBody1.Text = "Bienvenido"
-lbBody2.Text = "Ingrese Su Trajeta"
-
-End
-
-Public Sub searchPort()
-
-Dim i As Short
-'Funcion para buscar puertos disponibles, por defecto el puerto a usar es USB0
-
-'Probamos el puerto /ttyUSB0
-For i = 0 To 2 Step 1
-  Print "[Debug] Proband puerto /dev/ttyACM" & i
-  RFID_Port.PortName = "/dev/ttyACM" & i
-  Try RFID_Port.Open()
-  If RFID_Port.Status = Net.Active Then
-    Print "[Debug] Probando encontrado /dev/ttyACM" & i
-    Print "[Debug] Cerrando puerto"
-    Try RFID_Port.Close()
-    Break
-  Endif
-  If i = 2 Then
-    Print "[Debug] Puerto no encontrado"
-    Return
-  Endif
-Next
-
-lbSystem.Text = "Puerto Encontrado"
-
-'Configuracion por defecto
-Print "[Debug] Configurando puerto /dev/ttyACM" & i
-RFID_Port.Speed = "115200"
-RFID_Port.Parity = 0
-RFID_Port.StopBits = "1"
-RFID_Port.FlowControl = 0
-RFID_Port.DataBits = "8"
-
-'Salida de depuracion
-Print "[Debug] Speed /dev/ttyACM" & i & " = 115200"
-Print "[Debug] Parity /dev/ttyACM" & i & " = None"
-Print "[Debug] StopBits /dev/ttyACM" & i & " = 1"
-Print "[Debug] FlowControl /dev/ttyACM" & i & " = None"
-Print "[Debug] DataBits /dev/ttyACM" & i & " = 8"
-
-'Abrimos el puerto
-RFID_Port.Open
-
-
-lbSystem.Text = "Puerto Configurado"
+  lbSystem.Text = "Buscando puerto"
+  'Timer para la hora y fecha, intervalo cada segundo
+  dateTimer.Delay = 1000
+  'Timer iniciado
+  dateTimer.Start
+  
+  'Instancia de la clase que maneja el modulo RFID conectado
+  CardPort = New RFIDPort
+  If CardPort.RFIDStatus Then
+    lbSystem.Text = "Puerto encontrado" 
+  Endif 
+   
+  
+  'Mensaje de inicio
+  lbBody1.Text = "Bienvenido"
+  lbBody2.Text = "Ingrese Su Trajeta"
+  Print "Bienvenido"
+  
 End
 
 Public Sub dateTimer_Timer()
-' Sleep de 10 Milisegundos, esperamos que lleguela trama completa
-  Sleep 0.01
 
   Dim dateTime As Date
   dateTime = Format$(Now, "mm/dd/yyy hh:nn:ss")
   lbDate.Text = dateTime
-
+  
 End
 
-Public Sub RFID_Port_Read()
 
-  Dim dataRead As String
-  Read #RFID_Port, dataRead, Lof(RFID_Port)
-  Print dataRead
+Public Sub Button1_Click()
 
-End
+  'CardPort.DataIn("AT+NewCard[MVA00001][125.00]")
+  CardPort.SendCommand("AT")
+  End

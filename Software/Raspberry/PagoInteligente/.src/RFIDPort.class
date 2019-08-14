@@ -1,0 +1,239 @@
+' Gambas class file
+
+' @class RFIDPort
+
+' @brief Clase para interactuar con el modulo RFIDPort
+'        conectado por puerto serie, se encarga de
+'        enviar y recivir comandos del tipo "AT+Command"
+'        procesar comandos, gestionar eventos 
+
+
+
+'#################################################
+'   Declaraciones Gobales
+'#################################################
+'Usando el objeto SerialPort
+Private RFID_SPort As SerialPort
+
+
+'################################################
+'        Propiedades
+'################################################
+' Estado del puerto serial
+Property Read RFIDStatus As Boolean
+Private $RFIDStatus As Boolean
+
+' String para almacenar la respuesta del servidor
+Property response As String
+Private $response As String
+
+
+'#################################################
+'         Getter y Setter 
+'#################################################
+
+Private Function RFIDStatus_Read() As Boolean
+  
+  $RFIDStatus = RFID_SPort.Status
+  Return $RFIDStatus
+  
+End
+
+
+Private Function response_Read() As String
+
+  Return $response
+
+End
+
+Private Sub response_Write(Value As String)
+
+  $response = Value
+
+End
+
+'#############################
+'         Constructor 
+'#############################
+
+Public Sub _new()
+  'Creamos la instancia de la clase puerto serie
+  RFID_SPort = New SerialPort As "RFID_SPort"
+  
+  $response = "none"
+  
+  
+  If SearchPort() Then
+    'Puerto encontrado
+    'Configurando puerto
+    If ConfigurePort() Then
+      Print "Configuracion OK"
+    Endif
+  Endif
+  
+End
+
+
+'#############################
+'       Eventos
+'#############################
+
+'Evento del puerto serie
+Public Sub RFID_SPort_Read()
+  Read #RFID_SPort, $response, Lof(RFID_SPort)
+  
+End
+
+'Evento artificial, usado para depuracion cuando 
+' no hay un RFIDSport conectado
+Public Sub DataIn(data As String)
+  'Subrutina ejecutada desde el boton
+  
+  'comprobamos si es un camando especial como "AT+NewCard[$ID][$Saldo]"
+  If data Like "AT+NewCard*" Then
+    decodeCMD(data)
+  Endif
+
+End
+
+'#############################
+'       Metodos Publicos
+'#############################
+
+' @brief Envia un comando de tipo "AT+*" y espera la respuesta
+' 
+' @param cmd String que contiene el comando
+' 
+' @return Devuelve la respuesta del comando
+Public Function SendCommand(cmd As String) As String
+  'Envia el comando y el caracter de terminacion de linea "\n"
+  Print #RFID_SPort, cmd & Chr(10)
+  'Retardo para esperar la respuesta del comando
+  Wait 0.05
+  Return $response
+  
+End
+
+Public Function SendResponse(rsp As String) As Boolean
+  'Envia la respuesta por el puerto serie
+  Print #RFID_SPort, rsp & Chr(10)
+  
+End
+
+
+
+'#############################
+'       Metodos Privados
+'#############################
+
+
+' @brief Busca el puerto RFID_Sport entre los puertos
+'        disponibles, busca los puertos en /dev/ttyACM*
+'        desde el 0 al 2
+' 
+' @retunr True = Puerto encontrado
+'         False = Puerto no encontrado
+'         
+Private Function SearchPort() As Boolean
+  Dim i As Short
+  'Funcion para buscar puertos disponibles
+  'Probamos el puerto /ttyUSB0
+  For i = 0 To 2 Step 1
+    Print "[Debug] Probando puerto /dev/ttyACM" & i
+    RFID_SPort.PortName = "/dev/ttyACM" & i
+    Try RFID_SPort.Open()
+    If RFID_SPort.Status = Net.Active Then
+      Print "[Debug] Puerto encontrado en /dev/ttyACM" & i
+      Print "[Debug] Cerrando puerto"
+      Try RFID_SPort.Close()
+      Break
+    Endif
+    If i = 2 Then
+      Print "[Debug] Puerto RFIDPort no encontrado"
+      Return False
+    Endif
+  Next
+  
+  'lbSystem.Text = "Puerto Encontrado"
+  Return True
+  
+  
+End
+
+
+
+' @brief Configura el puerto RFID_SPort con los datos por
+'        defecto: 115200, none, 1, 8
+'
+' @retunr True = Puerto ok | False = fallo la configuracion
+Private Function ConfigurePort() As Boolean
+  
+    'Configuracion por defecto
+  Print "[Debug] Configurando puerto /dev/" & RFID_SPort.PortName
+  RFID_SPort.Speed = "115200"
+  RFID_SPort.Parity = 0
+  RFID_SPort.StopBits = "1"
+  RFID_SPort.FlowControl = 0
+  RFID_SPort.DataBits = "8"
+  
+  'Salida de depuracion
+  Print "[Debug] Speed /dev/" & RFID_SPort.PortName & " = 115200"
+  Print "[Debug] Parity /dev/" & RFID_SPort.PortName & " = None"
+  Print "[Debug] StopBits /dev/" & RFID_SPort.PortName & " = 1"
+  Print "[Debug] FlowControl /dev/" & RFID_SPort.PortName & " = None"
+  Print "[Debug] DataBits /dev/" & RFID_SPort.PortName & " = 8"
+  
+  'Abrimos el puerto
+  RFID_SPort.Open
+  
+  'lbSystem.Text = "Puerto Configurado"
+  Return True
+
+End
+
+
+Private Function decodeCMD(data As String) As Boolean
+  
+  Dim id As String          'ID de la tarjeta
+  Dim saldoStr As String    'Saldo de la tarjeta en string
+  Dim saldo As Float        'Saldo en formato numerico
+  Dim inicio As Short       'Indice
+  Dim final As Short        'Indice
+
+  'Extrayendo el primer argumento
+  inicio = InStr(data, "[")
+  final = InStr(data, "]")
+  'Print "posicion encontrada en: " & inicio & ", " & final
+  inicio = inicio + 1
+  'Extrae el substring de la cadena
+  id = Mid$(data, inicio, final - inicio)
+  'Print "ID: " & id
+  
+  'Extraemos el segundo argumento
+  inicio = InStr(data, "[", final)
+  final = final + 1
+  final = InStr(data, "]", final)
+  'Print "posicion encontrada en: " & inicio & ", " & final
+  inicio = inicio + 1
+  'Extrae  el substring de lacadena
+  saldoStr = Mid$(data, inicio, final - inicio)
+  'Convierte el string a float
+  saldo = CFloat(saldoStr)
+  'Print "Saldo: " & Format$(saldo, "#.#0") 'Formato de 2 decimales 
+  
+  'Teniendo el ID y el Saldo, creamos la instancia de la clase CardProcces
+  
+  FMain.cardProcess = New CardProcess
+  
+  FMain.cardProcess.ID = id
+  FMain.cardProcess.Saldo = saldo
+  FMain.cardProcess.showInfo()
+  
+End
+
+
+
+
+
+
+

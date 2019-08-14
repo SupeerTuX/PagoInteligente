@@ -1,0 +1,89 @@
+' Gambas class file
+
+' Clase usada para el proceso de cobro con tarjeta RFID
+
+'Declaracion del onservador
+Private observador As Observer
+
+'Contiene el id de la tarjeta ingresada
+Property ID As String
+Private $ID As String
+'Contiene el saldo 
+Property Saldo As Float
+Private $Saldo As Float
+
+
+
+'#############################
+'         Getter y Setter 
+'#############################
+'*******Get y Set para la propiedad ID
+Private Function ID_Read() As String
+  
+  Return $ID
+  
+End
+
+Private Sub ID_Write(id As String)
+  
+  $ID = id
+  
+End
+
+'******Get y Set para la propiedad saldo
+Private Function Saldo_Read() As Float
+  
+  Return $Saldo
+  
+End
+
+Private Sub Saldo_Write(saldo As Float)
+  
+  $Saldo = saldo
+  
+End
+
+'#############################
+'         Constructor 
+'#############################
+Public Sub _new()
+  
+  
+End
+
+'#############################
+'           Eventos
+'#############################
+Public Sub addObjeto(obj As Object)
+  
+  observador = New Observer(obj) As "operaciones"
+  
+End
+
+Public Sub operaciones_RFIDDataIn(data As String)
+  
+  Print "Mensaje :" & data
+  
+End
+
+
+'#############################
+'    Metodos Publicos
+'#############################
+
+'Muestra el ID y Saldo por consola
+Public Sub showInfo()
+  'Imprime por consola el saldo y el ID de la tarjeta
+  Print "ID: " & $ID & " Saldo: " & $Saldo
+  
+  'Imprime el ID y Saldo en el formulario principal
+  FMain.lbBody1.Text = "ID: " & $ID
+  FMain.lbBody2.Text = "Saldo: $" & Format$($Saldo, "#.#0") & " - Actual $" & Format$(($Saldo - 10), "#.#0")
+  
+End
+
+
+'#############################
+'   Metodos Privados
+'#############################
+
