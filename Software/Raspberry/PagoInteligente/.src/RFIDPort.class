@@ -7,14 +7,11 @@
 '        enviar y recivir comandos del tipo "AT+Command"
 '        procesar comandos, gestionar eventos 
 
-
-
 '#################################################
 '   Declaraciones Gobales
 '#################################################
 'Usando el objeto SerialPort
 Private RFID_SPort As SerialPort
-
 
 '################################################
 '        Propiedades
@@ -27,7 +24,6 @@ Private $RFIDStatus As Boolean
 Property response As String
 Private $response As String
 
-
 '#################################################
 '         Getter y Setter 
 '#################################################
@@ -39,17 +35,16 @@ Private Function RFIDStatus_Read() As Boolean
   
 End
 
-
 Private Function response_Read() As String
-
+  
   Return $response
-
+  
 End
 
 Private Sub response_Write(Value As String)
-
+  
   $response = Value
-
+  
 End
 
 '#############################
@@ -58,10 +53,10 @@ End
 
 Public Sub _new()
   'Creamos la instancia de la clase puerto serie
+
   RFID_SPort = New SerialPort As "RFID_SPort"
   
   $response = "none"
-  
   
   If SearchPort() Then
     'Puerto encontrado
@@ -73,14 +68,36 @@ Public Sub _new()
   
 End
 
-
 '#############################
 '       Eventos
 '#############################
 
 'Evento del puerto serie
 Public Sub RFID_SPort_Read()
+  
+  Sleep 0.1
   Read #RFID_SPort, $response, Lof(RFID_SPort)
+  Print "Evento: " & $response
+  
+  'comprobamos si es un camando especial como "AT+NewCard[$ID][$Saldo]"
+  If $response Like "AT+NewCard*" Then
+    decodeCMD($response)
+    
+    'Enviamos la respuesta del comando "OK"
+    SendResponse("OK")
+    
+    'Cobrar ---- Restar saldo
+    '       |--> Escribir Info de saldo en la clase 
+    
+    CobrarPasaje()
+    '       |--> Enviar comando AT+NewSaldo[$Saldo]
+    Dim s As String
+    s = "AT+NewSaldo[" & Format$(FMain.cardProcess.SaldoActual, "#.#0") & "]"
+    'SendCommand("AT+NewSaldo[FMain.cardProcess.SaldoActual]")
+    
+    Print "Cmd NewSaldo: " & s
+    
+  Endif
   
 End
 
@@ -93,7 +110,7 @@ Public Sub DataIn(data As String)
   If data Like "AT+NewCard*" Then
     decodeCMD(data)
   Endif
-
+  
 End
 
 '#############################
@@ -107,25 +124,24 @@ End
 ' @return Devuelve la respuesta del comando
 Public Function SendCommand(cmd As String) As String
   'Envia el comando y el caracter de terminacion de linea "\n"
+
   Print #RFID_SPort, cmd & Chr(10)
   'Retardo para esperar la respuesta del comando
-  Wait 0.05
+  Wait 0.3
   Return $response
   
 End
 
-Public Function SendResponse(rsp As String) As Boolean
+Public Sub SendResponse(rsp As String)
   'Envia la respuesta por el puerto serie
+
   Print #RFID_SPort, rsp & Chr(10)
   
 End
 
-
-
 '#############################
 '       Metodos Privados
 '#############################
-
 
 ' @brief Busca el puerto RFID_Sport entre los puertos
 '        disponibles, busca los puertos en /dev/ttyACM*
@@ -135,6 +151,7 @@ End
 '         False = Puerto no encontrado
 '         
 Private Function SearchPort() As Boolean
+
   Dim i As Short
   'Funcion para buscar puertos disponibles
   'Probamos el puerto /ttyUSB0
@@ -157,10 +174,7 @@ Private Function SearchPort() As Boolean
   'lbSystem.Text = "Puerto Encontrado"
   Return True
   
-  
 End
-
-
 
 ' @brief Configura el puerto RFID_SPort con los datos por
 '        defecto: 115200, none, 1, 8
@@ -168,7 +182,7 @@ End
 ' @retunr True = Puerto ok | False = fallo la configuracion
 Private Function ConfigurePort() As Boolean
   
-    'Configuracion por defecto
+  'Configuracion por defecto
   Print "[Debug] Configurando puerto /dev/" & RFID_SPort.PortName
   RFID_SPort.Speed = "115200"
   RFID_SPort.Parity = 0
@@ -188,9 +202,8 @@ Private Function ConfigurePort() As Boolean
   
   'lbSystem.Text = "Puerto Configurado"
   Return True
-
+  
 End
-
 
 Private Function decodeCMD(data As String) As Boolean
   
@@ -199,7 +212,7 @@ Private Function decodeCMD(data As String) As Boolean
   Dim saldo As Float        'Saldo en formato numerico
   Dim inicio As Short       'Indice
   Dim final As Short        'Indice
-
+  
   'Extrayendo el primer argumento
   inicio = InStr(data, "[")
   final = InStr(data, "]")
@@ -226,14 +239,22 @@ Private Function decodeCMD(data As String) As Boolean
   FMain.cardProcess = New CardProcess
   
   FMain.cardProcess.ID = id
-  FMain.cardProcess.Saldo = saldo
+  FMain.cardProcess.SaldoAnterior = saldo
   FMain.cardProcess.showInfo()
   
 End
 
+' @brief descuenta el pasaje del ssaldo de la tarjeta,
+'       actualizar la informacion en la instancia de CardProcces
+'       envia el comando "AT+NewSaldo[$Saldo]" al RFID_SPort
+'       
+' @retunr True = Comando OK | False Error al escribir nuevo saldo      
+Private Function CobrarPasaje() As Boolean
 
-
-
-
-
-
+  Dim costoPasaje As Float
+  costoPasaje = 10.00
+  
+  'Actualiza la informacion en la clase CardProcess
+  FMain.cardProcess.RestarSaldo(10.00)
+  
+End

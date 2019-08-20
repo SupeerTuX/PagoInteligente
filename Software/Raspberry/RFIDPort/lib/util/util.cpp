@@ -175,12 +175,12 @@ void cardProcces()
     String msg = readMsg();
     if (msg.length() > 0)
     {
-      Serial.print("CMD :[");
-      Serial.print(msg);
-      Serial.println("]");
+      //Serial.print("CMD :[");
+      //Serial.print(msg);
+      //Serial.println("]");
 
       //Buscando el comando recibido
-      Serial.println("Buscando Comando");
+      //Serial.println("Buscando Comando");
       searchCMD(msg);
     }
     delay(250);

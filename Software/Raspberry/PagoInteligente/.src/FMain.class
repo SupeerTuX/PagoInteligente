@@ -38,7 +38,8 @@ End
 
 
 Public Sub Button1_Click()
-
+  Dim r As String
   'CardPort.DataIn("AT+NewCard[MVA00001][125.00]")
-  CardPort.SendCommand("AT")
+  r = CardPort.SendCommand("AT")
+  Print "Respuesta: " & r
   End

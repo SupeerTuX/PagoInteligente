@@ -9,8 +9,13 @@ Private observador As Observer
 Property ID As String
 Private $ID As String
 'Contiene el saldo 
-Property Saldo As Float
-Private $Saldo As Float
+Property SaldoAnterior As Float
+Private $SaldoAnterior As Float
+
+Property SaldoActual As Float
+Private $SaldoActual As Float
+
+
 
 
 
@@ -29,18 +34,31 @@ Private Sub ID_Write(id As String)
   $ID = id
   
 End
-
+'**************************************************
 '******Get y Set para la propiedad saldo
-Private Function Saldo_Read() As Float
+Private Function SaldoAnterior_Read() As Float
   
-  Return $Saldo
+  Return $SaldoAnterior
   
 End
 
-Private Sub Saldo_Write(saldo As Float)
+Private Sub SaldoAnterior_Write(saldo As Float)
   
-  $Saldo = saldo
+  $SaldoAnterior = saldo
   
+End
+'***************************************************
+'Getter y Setter para SaldoActual
+Private Function SaldoActual_Read() As Float
+
+  Return $SaldoActual
+
+End
+
+Private Sub SaldoActual_Write(Value As Float)
+
+  $SaldoActual = Value
+
 End
 
 '#############################
@@ -74,16 +92,30 @@ End
 'Muestra el ID y Saldo por consola
 Public Sub showInfo()
   'Imprime por consola el saldo y el ID de la tarjeta
-  Print "ID: " & $ID & " Saldo: " & $Saldo
+  Print "ID: " & $ID & " Saldo Actual: " & $SaldoActual & "Saldo Anterior: " & $SaldoAnterior
   
   'Imprime el ID y Saldo en el formulario principal
   FMain.lbBody1.Text = "ID: " & $ID
-  FMain.lbBody2.Text = "Saldo: $" & Format$($Saldo, "#.#0") & " - Actual $" & Format$(($Saldo - 10), "#.#0")
+  FMain.lbBody2.Text = "Saldo: $" & Format$($SaldoActual, "#.#0") & " - Ant. $" & Format$($SaldoAnterior, "#.#0")
   
 End
+
+
+' @brief Resta el costo del pasaje al saldo, 
+'         $SaldoAnterior es el saldo original de la tarjeta
+'         $SaldoActual es el saldo despues de cobra el costo del pasaje
+        
+Public Sub RestarSaldo(costoPasaje As Float)
+  
+  $SaldoActual = ($SaldoAnterior - costoPasaje)
+  
+End
+
 
 
 '#############################
 '   Metodos Privados
 '#############################
+
+
 

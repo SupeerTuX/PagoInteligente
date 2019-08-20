@@ -17,7 +17,7 @@ void setup()
   // put your setup code here, to run once:
   Serial.begin(115200);
 
-  Serial.println("Inicio de programa");
+  //Serial.println("Inicio de programa");
 
   // Init SPI
   SPI.begin();
@@ -37,6 +37,7 @@ void setup()
 void loop()
 {
   delay(200);
+  //cardProcces();
   //Buscando nuevas tarjetas
   if (!mfrc522.PICC_IsNewCardPresent())
   {

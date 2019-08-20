@@ -42,12 +42,12 @@
     Text = ("System OK")
   }
   { PictureBox1 PictureBox
-    MoveScaled(2,9,6,6)
+    MoveScaled(2,6,6,6)
     Picture = Picture["img/calendario.png"]
     Stretch = True
   }
   { lbDate TextLabel
-    MoveScaled(9,11,29,3)
+    MoveScaled(9,8,29,3)
     Font = Font["+2"]
     Text = ("Fecha y Hora")
   }

@@ -19,8 +19,8 @@ byte leerSaldo(char *saldo)
 {
   if (readBlock(saldo, BLOCK_SALDO, TBLOCK_SALDO))
   {
-    Serial.print(F("Data: "));
-    Serial.println(saldo);
+    //Serial.print(F("Data: "));
+    //Serial.println(saldo);
     return true;
   }
   else
